@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Momentum — Motor Insurance Console</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===================== AZENTIO DESIGN TOKENS ===================== */
+        :root {
+            --brand-green: #2ed88e;
+            --brand-green-light: #d4ffef;
+            --brand-dark: #16303d;
+            --brand-dark-40: #8a979e;
+            --brand-dark-15: #dce0e2;
+            --brand-dark-5: #f3f5f5;
+            --border-grey: #b9c1c5;
+            --white: #ffffff;
+            --secondary-grey: #76777a;
+            --accent-red: #f24456;
+            --accent-orange: #f18710;
+            --accent-yellow: #ffcc3d;
+            --accent-green: #13ce66;
+            --text-primary: #16303d;
+            --text-secondary: #76777a;
+            --bg-page: #f3f5f5;
+            --bg-surface: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ===================== TOP NAV ===================== */
+        .top-nav {
+            background: var(--brand-dark);
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            justify-content: space-between;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .nav-logo { display: flex; align-items: center; gap: 10px; }
+        .nav-logo-mark {
+            width: 34px; height: 34px;
+            background: var(--brand-green);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 18px; color: var(--brand-dark);
+        }
+        .nav-logo-text { color: white; font-weight: 600; font-size: 16px; }
+        .nav-logo-sub { color: var(--brand-dark-40); font-size: 11px; }
+        .nav-right { display: flex; align-items: center; gap: 16px; }
+        .nav-badge {
+            background: var(--brand-green); color: var(--brand-dark);
+            font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px;
+        }
+        .nav-user { display: flex; align-items: center; gap: 8px; color: white; font-size: 13px; }
+        .nav-avatar {
+            width: 32px; height: 32px; background: var(--brand-green);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 13px; color: var(--brand-dark);
+        }
+
+        /* ===================== SCREENS ===================== */
+        .page-wrapper { margin-top: 56px; min-height: calc(100vh - 56px); }
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        /* ===================== CONSOLE SCREEN ===================== */
+        .console-screen { padding: 24px; }
+        .page-header {
+            display: flex; align-items: center;
+            justify-content: space-between; margin-bottom: 20px;
+        }
+        .page-title { font-size: 20px; font-weight: 600; }
+        .page-subtitle { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+        .search-bar {
+            background: var(--bg-surface);
+            border: 1px solid var(--brand-dark-15);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: flex; align-items: center; gap: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .search-field { display: flex; align-items: center; gap: 8px; flex: 1; }
+        .search-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px; }
+        .search-input {
+            flex: 1; border: 1.5px solid var(--border-grey); border-radius: 8px;
+            padding: 9px 14px; font-size: 14px; font-family: 'Inter', sans-serif;
+            color: var(--text-primary); outline: none; transition: all 0.2s;
+        }
+        .search-input:focus { border-color: var(--brand-green); box-shadow: 0 0 0 3px rgba(46,216,142,0.12); }
+        .search-input.filled { background: #f0fff8; border-color: var(--brand-green); font-weight: 500; }
+        .search-divider { width: 1px; height: 36px; background: var(--brand-dark-15); }
+
+        .console-layout { display: grid; grid-template-columns: 1fr 1fr 248px; gap: 16px; align-items: start; }
+
+        /* ===================== CARDS ===================== */
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--brand-dark-15);
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+        }
+        .card:last-child { margin-bottom: 0; }
+        .card-header {
+            padding: 13px 18px; border-bottom: 1px solid var(--brand-dark-15);
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--brand-dark-5);
+        }
+        .card-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.6px; }
+        .card-body { padding: 16px 18px; }
+
+        /* ===================== FORM ELEMENTS ===================== */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .form-row:last-child { margin-bottom: 0; }
+        .form-row.single { grid-template-columns: 1fr; }
+        .form-row.three { grid-template-columns: 1fr 1fr 1fr; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-label { font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; }
+        .required { color: var(--accent-red); margin-left: 2px; }
+        .form-input {
+            border: 1.5px solid var(--border-grey); border-radius: 8px;
+            padding: 8px 12px; font-size: 13px; font-family: 'Inter', sans-serif;
+            color: var(--text-primary); outline: none; transition: all 0.2s; background: white;
+        }
+        .form-input:focus { border-color: var(--brand-green); box-shadow: 0 0 0 3px rgba(46,216,142,0.12); }
+        .form-input.filled { background: #fafffe; border-color: var(--brand-dark-15); }
+        .form-input.highlight { background: #e8fff5; border-color: var(--brand-green); font-weight: 600; color: var(--brand-dark); }
+        .form-select {
+            border: 1.5px solid var(--border-grey); border-radius: 8px;
+            padding: 8px 12px; font-size: 13px; font-family: 'Inter', sans-serif;
+            color: var(--text-primary); background: white; outline: none; cursor: pointer;
+        }
+        .form-select:focus { border-color: var(--brand-green); }
+        .inline-value { font-size: 11px; color: var(--brand-green); font-weight: 600; margin-top: 1px; }
+
+        /* ===================== BUTTONS ===================== */
+        .btn {
+            padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            font-family: 'Inter', sans-serif; cursor: pointer; border: none; transition: all 0.15s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-primary { background: var(--brand-green); color: var(--brand-dark); }
+        .btn-primary:hover { background: #25c47e; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(46,216,142,0.3); }
+        .btn-secondary { background: transparent; border: 1.5px solid var(--border-grey); color: var(--text-primary); }
+        .btn-secondary:hover { background: var(--brand-dark-5); border-color: var(--brand-dark-40); }
+        .btn-danger { background: #fff0f0; border: 1.5px solid #ffd0d0; color: var(--accent-red); }
+        .btn-danger:hover { background: #ffe0e0; }
+
+        /* ===================== ACTION PANEL ===================== */
+        .action-panel { display: flex; flex-direction: column; gap: 6px; }
+        .action-btn {
+            background: var(--bg-surface); border: 1px solid var(--brand-dark-15);
+            border-radius: 8px; padding: 10px 14px; font-size: 13px; font-weight: 500;
+            color: var(--text-primary); cursor: pointer; transition: all 0.15s;
+            text-align: left; font-family: 'Inter', sans-serif; width: 100%;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .action-btn:hover { background: var(--brand-dark-5); border-color: var(--border-grey); transform: translateX(2px); }
+        .action-btn.primary { background: var(--brand-green); border-color: var(--brand-green); color: var(--brand-dark); font-weight: 700; }
+        .action-btn.primary:hover { background: #25c47e; transform: translateX(2px); }
+        .action-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+        .quick-info-label {
+            font-size: 10px; font-weight: 700; color: var(--brand-dark-40);
+            text-transform: uppercase; letter-spacing: 0.6px; padding: 10px 4px 4px;
+        }
+
+        /* ===================== TABS ===================== */
+        .tab-bar {
+            background: var(--bg-surface); border: 1px solid var(--brand-dark-15);
+            border-radius: 12px; padding: 4px; display: flex; gap: 2px; margin-top: 16px;
+        }
+        .tab-item {
+            padding: 9px 20px; font-size: 13px; font-weight: 500;
+            color: var(--text-secondary); border-radius: 8px; cursor: pointer; transition: all 0.15s;
+        }
+        .tab-item.active { background: var(--brand-dark); color: white; }
+        .tab-item:hover:not(.active) { background: var(--brand-dark-5); color: var(--text-primary); }
+
+        /* ===================== STATUS BADGES ===================== */
+        .status-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+        }
+        .badge-incomplete { background: #fff3e0; color: #e65100; }
+        .badge-approved { background: #e8fff5; color: #16a05e; }
+        .badge-converted { background: #e8f0fe; color: #1a73e8; }
+
+        /* ===================== STEPPER LAYOUT ===================== */
+        .stepper-wrapper { display: flex; height: calc(100vh - 56px); }
+
+        .stepper-sidebar {
+            width: 264px; background: var(--brand-dark); padding: 0;
+            overflow-y: auto; flex-shrink: 0; display: flex; flex-direction: column;
+        }
+        .stepper-header {
+            padding: 20px 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .stepper-header-title { color: white; font-size: 14px; font-weight: 600; }
+        .stepper-header-sub { color: var(--brand-dark-40); font-size: 11px; margin-top: 3px; }
+        .stepper-header-badge {
+            display: inline-block; background: rgba(46,216,142,0.15);
+            color: var(--brand-green); font-size: 10px; font-weight: 600;
+            padding: 2px 8px; border-radius: 10px; margin-top: 8px;
+        }
+
+        .stepper-nav { padding: 16px 0; flex: 1; }
+
+        .stepper-step { position: relative; padding: 0 20px 0; cursor: pointer; }
+
+        .step-inner {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 10px 0; position: relative;
+        }
+
+        .step-line {
+            position: absolute; left: 11px; top: 34px;
+            width: 2px; height: calc(100% + 8px);
+            background: rgba(255,255,255,0.08);
+            z-index: 0;
+        }
+        .step-line.done { background: var(--brand-green); }
+        .stepper-step:last-child .step-line { display: none; }
+
+        .step-dot {
+            width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 700; z-index: 1; margin-top: 2px;
+            background: rgba(255,255,255,0.08); color: var(--brand-dark-40);
+            border: 2px solid rgba(255,255,255,0.1); transition: all 0.2s;
+        }
+        .stepper-step.active .step-dot { background: var(--brand-green); color: var(--brand-dark); border-color: var(--brand-green); }
+        .stepper-step.done .step-dot { background: var(--brand-green); color: var(--brand-dark); border-color: var(--brand-green); }
+
+        .step-text { flex: 1; }
+        .step-label { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.4); transition: color 0.2s; }
+        .stepper-step.active .step-label { color: white; font-weight: 600; }
+        .stepper-step.done .step-label { color: rgba(255,255,255,0.65); }
+        .step-sublabel { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 1px; }
+        .stepper-step.active .step-sublabel { color: rgba(255,255,255,0.5); }
+
+        .sub-steps { padding: 4px 0 8px 36px; display: none; }
+        .stepper-step.active .sub-steps { display: block; }
+        .sub-step {
+            padding: 6px 10px; font-size: 12px; color: rgba(255,255,255,0.35);
+            border-radius: 6px; cursor: pointer; margin-bottom: 1px; transition: all 0.15s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sub-step.active { background: rgba(255,255,255,0.08); color: white; font-weight: 500; }
+        .sub-step:hover:not(.active) { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.6); }
+        .sub-step-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); flex-shrink: 0; }
+        .sub-step.active .sub-step-dot { background: var(--brand-green); }
+
+        /* ===================== STEPPER CONTENT ===================== */
+        .stepper-content {
+            flex: 1; overflow-y: auto; padding: 28px;
+            background: var(--bg-page); display: flex; flex-direction: column;
+        }
+
+        .step-page { display: none; flex: 1; max-width: 860px; }
+        .step-page.active { display: block; }
+
+        .step-page-header { margin-bottom: 24px; }
+        .step-page-title { font-size: 22px; font-weight: 700; color: var(--text-primary); }
+        .step-page-desc { font-size: 13px; color: var(--text-secondary); margin-top: 5px; }
+        .step-page-header-row { display: flex; align-items: center; justify-content: space-between; }
+
+        /* ===================== TABLES ===================== */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th {
+            background: var(--brand-dark-5); padding: 10px 14px; text-align: left;
+            font-size: 10px; font-weight: 700; color: var(--text-secondary);
+            text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--brand-dark-15);
+        }
+        .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--brand-dark-15); color: var(--text-primary); }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: var(--brand-dark-5); }
+        .data-table tr.selected td { background: #f0fff8; }
+        .data-table .total-row td { font-weight: 700; background: var(--brand-dark-5) !important; border-top: 2px solid var(--brand-dark-15); }
+
+        /* ===================== TAGS ===================== */
+        .tag { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .tag-green { background: #e8fff5; color: #16a05e; }
+        .tag-blue { background: #e8f0fe; color: #1a73e8; }
+        .tag-orange { background: #fff3e0; color: #e65100; }
+
+        /* ===================== ALERTS ===================== */
+        .info-alert {
+            background: #e8f4fd; border: 1px solid #a0c7fe; border-radius: 8px;
+            padding: 12px 16px; font-size: 13px; color: #1a5c8a;
+            margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start;
+        }
+        .warning-alert {
+            background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px;
+            padding: 12px 16px; font-size: 13px; color: #795548;
+            margin-bottom: 16px; display: flex; gap: 10px; align-items: flex-start;
+        }
+
+        /* ===================== MAPS PLACEHOLDER ===================== */
+        .maps-placeholder {
+            background: var(--brand-dark-5); border: 2px dashed var(--border-grey);
+            border-radius: 10px; height: 150px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 8px; color: var(--text-secondary); font-size: 13px;
+            cursor: pointer; transition: all 0.15s; margin-bottom: 16px;
+        }
+        .maps-placeholder:hover { border-color: var(--brand-green); background: #f0fff8; color: var(--brand-dark); }
+        .maps-icon { font-size: 26px; }
+
+        /* ===================== SUMMARY ===================== */
+        .summary-card {
+            background: var(--bg-surface); border: 1px solid var(--brand-dark-15);
+            border-radius: 12px; padding: 16px 20px; margin-bottom: 16px;
+        }
+        .summary-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 7px 0; border-bottom: 1px solid var(--brand-dark-5); font-size: 13px;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-row.total { font-weight: 700; font-size: 15px; padding-top: 12px; margin-top: 4px; border-top: 2px solid var(--brand-dark-15); border-bottom: none; }
+        .summary-label { color: var(--text-secondary); }
+        .summary-value { font-weight: 500; color: var(--text-primary); }
+        .summary-value.green { color: #16a05e; font-weight: 700; }
+
+        /* ===================== POLICY SUCCESS ===================== */
+        .policy-success {
+            background: linear-gradient(135deg, #16303d 0%, #1e4d60 100%);
+            border-radius: 16px; padding: 36px; text-align: center; color: white; margin-bottom: 24px;
+        }
+        .policy-icon {
+            width: 60px; height: 60px; background: var(--brand-green); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px; font-size: 26px;
+        }
+        .policy-label { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+        .policy-number { font-size: 30px; font-weight: 700; color: var(--brand-green); letter-spacing: 3px; }
+        .policy-meta { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 8px; }
+
+        /* ===================== DIVIDERS ===================== */
+        .section-divider { border: none; border-top: 1px solid var(--brand-dark-15); margin: 14px 0; }
+        .section-mini-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+
+        /* ===================== PREVIOUS INSURANCE MODAL ===================== */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.4); z-index: 200;
+            align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white; border-radius: 16px; width: 480px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px 24px; border-bottom: 1px solid var(--brand-dark-15);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .modal-title { font-size: 16px; font-weight: 600; }
+        .modal-close {
+            width: 28px; height: 28px; border-radius: 6px; border: none;
+            background: var(--brand-dark-5); cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center; color: var(--text-secondary);
+        }
+        .modal-close:hover { background: var(--brand-dark-15); }
+        .modal-body { padding: 24px; }
+        .modal-footer {
+            padding: 16px 24px; border-top: 1px solid var(--brand-dark-15);
+            display: flex; justify-content: flex-end; gap: 10px;
+        }
+
+        /* ===================== CONVERT CTA ===================== */
+        .convert-cta {
+            background: linear-gradient(135deg, #e8fff5, #f0fff8);
+            border: 1.5px solid var(--brand-green);
+            border-radius: 12px; padding: 20px 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 20px;
+        }
+        .convert-cta-text { font-size: 15px; font-weight: 600; color: var(--brand-dark); }
+        .convert-cta-sub { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+
+        /* ===================== STEPPER NAV FOOTER ===================== */
+        .step-nav-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--brand-dark-15);
+        }
+
+        /* ===================== SECTION TOGGLE ===================== */
+        .toggle-label {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; cursor: pointer; color: var(--text-secondary); font-weight: 500;
+        }
+        .toggle-label input { accent-color: var(--brand-green); width: 14px; height: 14px; }
+    </style>
+</head>
+<body>
+
+<!-- ======================== TOP NAV ======================== -->
+<nav class="top-nav">
+    <div class="nav-logo">
+        <div class="nav-logo-mark">M</div>
+        <div>
+            <div class="nav-logo-text">Momentum</div>
+            <div class="nav-logo-sub">Motor Insurance Console</div>
+        </div>
+    </div>
+    <div class="nav-right">
+        <span class="nav-badge">UAT</span>
+        <div class="nav-user">
+            <div class="nav-avatar">R</div>
+            <span>RONELK01</span>
+        </div>
+    </div>
+</nav>
+
+<div class="page-wrapper">
+
+<!-- ======================== PREVIOUS INSURANCE MODAL ======================== -->
+<div class="modal-overlay" id="modal-prev-insurance">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">Previous Insurance / Claims</span>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; flex-direction:column; gap:16px;">
+                <div class="form-group">
+                    <label class="form-label">Previous Insurance Cancellation</label>
+                    <select class="form-select">
+                        <option value="">Select...</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Previous Claims Rejection</label>
+                    <select class="form-select">
+                        <option value="">Select...</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fraud Conviction</label>
+                    <select class="form-select">
+                        <option value="">Select...</option>
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="proceedToStepper()">OK — Continue</button>
+        </div>
+    </div>
+</div>
+
+<!-- ======================== SCREEN 1: CONSOLE ======================== -->
+<div id="screen-console" class="screen active">
+    <div class="console-screen">
+
+        <div class="page-header">
+            <div>
+                <div class="page-title">Call Centre Console <span style="font-weight:300; color:var(--text-secondary)">— Sales</span></div>
+                <div class="page-subtitle">Search for an existing lead or quote, or create a new one</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <label style="font-size:12px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px;">Speaking To</label>
+                <select class="form-select">
+                    <option>Broker</option>
+                    <option>Client</option>
+                    <option>Agent</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Smart Search Bar -->
+        <div class="search-bar">
+            <div class="search-field">
+                <span class="search-label">Quote No.</span>
+                <input class="search-input" placeholder="Search quote number..." />
+            </div>
+            <div class="search-divider"></div>
+            <div class="search-field">
+                <span class="search-label">Lead Code</span>
+                <input class="search-input filled" value="CL-051449974" />
+            </div>
+            <button class="btn btn-primary" onclick="openModal()">▶ Start Quote</button>
+        </div>
+
+        <!-- 3-column layout -->
+        <div class="console-layout">
+
+            <!-- Col 1: Broker + Broker Mandate -->
+            <div>
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Broker</span></div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Code <span class="required">*</span></label>
+                                <input class="form-input filled" value="039666840930" />
+                                <span class="inline-value">LETSATSI RISK MANA</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input class="form-input filled" value="info@letsatsiriskman" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">RSA ID <span class="required">*</span></label>
+                                <input class="form-input filled" value="8409305823085" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">House</label>
+                                <input class="form-input" value="LETSATSI RISK MANA" style="color:var(--brand-green); font-weight:500;" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input class="form-input filled" value="MODISE" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Surname</label>
+                                <input class="form-input filled" value="MASEKELA" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input class="form-input filled" value="010-5996191" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cell</label>
+                                <input class="form-input filled" value="0105996191" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Broker Mandate</span></div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">RSA ID <span class="required">*</span></label>
+                                <input class="form-input" placeholder="Enter RSA ID" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input class="form-input" placeholder="Enter email" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input class="form-input" placeholder="Enter name" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Surname</label>
+                                <input class="form-input" placeholder="Enter surname" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input class="form-input" placeholder="Phone" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cell</label>
+                                <input class="form-input" placeholder="Cell" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Col 2: Lead/Client + Business Through -->
+            <div>
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Lead / Client</span>
+                        <label class="toggle-label"><input type="checkbox" /> Commercial</label>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Lead Code <span class="required">*</span></label>
+                                <input class="form-input highlight" value="CL-051449974" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PP. No. <span class="required">*</span></label>
+                                <input class="form-input" placeholder="PP Number" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">RSA ID <span class="required">*</span></label>
+                                <input class="form-input filled" value="5001034800089" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input class="form-input filled" value="Janson" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Surname</label>
+                                <input class="form-input filled" value="Rao" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input class="form-input filled" value="janson@gail.com" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Cell</label>
+                                <input class="form-input filled" value="082-6545454" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input class="form-input filled" value="0826545322" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Business Through</span></div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Channel <span class="required">*</span></label>
+                                <input class="form-input filled" value="021" />
+                                <span class="inline-value">Manual Leads</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sub Channel <span class="required">*</span></label>
+                                <input class="form-input filled" value="017" />
+                                <span class="inline-value">Broker</span>
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Originated From</label>
+                                <select class="form-select"><option>Select...</option></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Col 3: Action panel -->
+            <div class="action-panel">
+                <button class="action-btn">🗂 Serviced By</button>
+                <button class="action-btn">🔧 Service</button>
+                <button class="action-btn">📋 Claims</button>
+                <button class="action-btn primary" onclick="openModal()">▶ Start Quote</button>
+                <button class="action-btn">🔍 Product Query</button>
+                <button class="action-btn" onclick="showScreen('screen-stepper'); showStep(1);">➕ Lead Creation</button>
+                <button class="action-btn">📞 CCE</button>
+                <div class="quick-info-label">Quick Info</div>
+                <button class="action-btn">🕐 History</button>
+                <button class="action-btn">🛡 Coverage</button>
+                <button class="action-btn">💰 Financials</button>
+                <button class="action-btn">🎁 Rewarder Dtls</button>
+                <button class="action-btn">📇 Contact Details</button>
+            </div>
+        </div>
+
+        <!-- Bottom Tabs -->
+        <div class="tab-bar">
+            <div class="tab-item active">Client / Lead</div>
+            <div class="tab-item">Quotes</div>
+            <div class="tab-item">Policy</div>
+            <div class="tab-item">Mandates</div>
+            <div class="tab-item">Check Sales</div>
+            <div class="tab-item">Broker Preference</div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ======================== SCREEN 2: STEPPER FLOW ======================== -->
+<div id="screen-stepper" class="screen">
+    <div class="stepper-wrapper">
+
+        <!-- Left Sidebar -->
+        <div class="stepper-sidebar">
+            <div class="stepper-header">
+                <div class="stepper-header-title">Ms. Janson Rao</div>
+                <div class="stepper-header-sub">QP00926441 · Personal Motor</div>
+                <div class="stepper-header-badge">New Quote</div>
+            </div>
+
+            <div class="stepper-nav">
+
+                <!-- Step 1 -->
+                <div class="stepper-step" id="nav-step-1" onclick="showStep(1)">
+                    <div class="step-inner">
+                        <div class="step-line" id="line-1"></div>
+                        <div class="step-dot" id="dot-1">1</div>
+                        <div class="step-text">
+                            <div class="step-label">Broker & Lead</div>
+                            <div class="step-sublabel">Broker & client info</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="stepper-step" id="nav-step-2" onclick="showStep(2)">
+                    <div class="step-inner">
+                        <div class="step-line" id="line-2"></div>
+                        <div class="step-dot" id="dot-2">2</div>
+                        <div class="step-text">
+                            <div class="step-label">Client Profile</div>
+                            <div class="step-sublabel">Personal & address info</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="stepper-step" id="nav-step-3" onclick="showStep(3)">
+                    <div class="step-inner">
+                        <div class="step-line" id="line-3"></div>
+                        <div class="step-dot" id="dot-3">3</div>
+                        <div class="step-text">
+                            <div class="step-label">Quote Setup</div>
+                            <div class="step-sublabel">Dates & frequency</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="stepper-step" id="nav-step-4" onclick="showStep(4)">
+                    <div class="step-inner">
+                        <div class="step-line" id="line-4"></div>
+                        <div class="step-dot" id="dot-4">4</div>
+                        <div class="step-text">
+                            <div class="step-label">Risk Details</div>
+                            <div class="step-sublabel">Vehicle, driver & cover</div>
+                        </div>
+                    </div>
+                    <div class="sub-steps">
+                        <div class="sub-step active" id="sub-vehicle" onclick="event.stopPropagation(); showSubStep('vehicle')"><div class="sub-step-dot"></div> Vehicle Details</div>
+                        <div class="sub-step" id="sub-driver" onclick="event.stopPropagation(); showSubStep('driver')"><div class="sub-step-dot"></div> Driver Details</div>
+                        <div class="sub-step" id="sub-cover" onclick="event.stopPropagation(); showSubStep('cover')"><div class="sub-step-dot"></div> Risk Cover</div>
+                        <div class="sub-step" id="sub-smi" onclick="event.stopPropagation(); showSubStep('smi')"><div class="sub-step-dot"></div> SMI</div>
+                        <div class="sub-step" id="sub-excess" onclick="event.stopPropagation(); showSubStep('excess')"><div class="sub-step-dot"></div> Excess</div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="stepper-step" id="nav-step-5" onclick="showStep(5)">
+                    <div class="step-inner">
+                        <div class="step-dot" id="dot-5">5</div>
+                        <div class="step-text">
+                            <div class="step-label">Review & Submit</div>
+                            <div class="step-sublabel">Premium & convert to policy</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div style="padding:16px 20px; border-top:1px solid rgba(255,255,255,0.08);">
+                <button class="btn btn-secondary" onclick="showScreen('screen-console')" style="width:100%; justify-content:center; font-size:12px; padding:8px; border-color:rgba(255,255,255,0.1); color:rgba(255,255,255,0.5);">← Back to Console</button>
+            </div>
+        </div>
+
+        <!-- Right Content -->
+        <div class="stepper-content" id="stepper-content">
+
+            <!-- ===== STEP 1: Broker & Lead ===== -->
+            <div class="step-page active" id="step-1">
+                <div class="step-page-header">
+                    <div class="step-page-title">Broker & Lead Details</div>
+                    <div class="step-page-desc">Confirm broker and lead/client information for this quote</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Broker Information</span></div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Code <span class="required">*</span></label>
+                                <input class="form-input filled" value="039666840930" />
+                                <span class="inline-value">LETSATSI RISK MANA</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">RSA ID <span class="required">*</span></label>
+                                <input class="form-input filled" value="8409305823085" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input class="form-input filled" value="info@letsatsi.com" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input class="form-input filled" value="MODISE" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Surname</label>
+                                <input class="form-input filled" value="MASEKELA" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">House</label>
+                                <input class="form-input" value="LETSATSI RISK MANA" style="color:var(--brand-green); font-weight:500;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Lead / Client</span>
+                        <label class="toggle-label"><input type="checkbox" /> Commercial</label>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Lead Code <span class="required">*</span></label>
+                                <input class="form-input highlight" value="CL-051449974" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">RSA ID <span class="required">*</span></label>
+                                <input class="form-input filled" value="5001034800089" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PP. No.</label>
+                                <input class="form-input" placeholder="PP Number" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Name</label>
+                                <input class="form-input filled" value="Janson" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Surname</label>
+                                <input class="form-input filled" value="Rao" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input class="form-input filled" value="janson@gail.com" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Cell</label>
+                                <input class="form-input filled" value="082-6545454" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input class="form-input filled" value="0826545322" />
+                            </div>
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Business Through</span></div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Channel <span class="required">*</span></label>
+                                <input class="form-input filled" value="021" />
+                                <span class="inline-value">Manual Leads</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Sub Channel <span class="required">*</span></label>
+                                <input class="form-input filled" value="017" />
+                                <span class="inline-value">Broker</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Originated From</label>
+                                <select class="form-select"><option>Select...</option></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-nav-footer">
+                    <div style="font-size:12px; color:var(--text-secondary);">Step 1 of 5</div>
+                    <button class="btn btn-primary" onclick="showStep(2)">Next: Client Profile →</button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 2: Client Profile ===== -->
+            <div class="step-page" id="step-2">
+                <div class="step-page-header">
+                    <div class="step-page-title">Client Profile</div>
+                    <div class="step-page-desc">Personal details, contact information, address and communication preferences</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Client Details</span></div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Client Type <span class="required">*</span></label>
+                                <select class="form-select">
+                                    <option>01 — Natural Person</option>
+                                    <option>02 — Company (PTY LTD)</option>
+                                    <option>03 — Close Corporation (CC)</option>
+                                    <option>04 — Trust</option>
+                                    <option>05 — Estate Late</option>
+                                    <option>06 — Non-profit org (NPO)</option>
+                                    <option>07 — Non-govt org (NGO)</option>
+                                    <option>08 — Body Corporate</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Type of Product <span class="required">*</span></label>
+                                <select class="form-select">
+                                    <option>01 — Personal</option>
+                                    <option>02 — Commercial</option>
+                                    <option>HIPPO</option>
+                                    <option>OCR</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Directors / Members</label>
+                                <input class="form-input filled" value="2" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Personal Details</span></div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Title <span class="required">*</span></label>
+                                <select class="form-select"><option>Ms</option><option>Mr</option><option>Dr</option><option>Prof</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Initials</label>
+                                <input class="form-input filled" value="J" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">RSA ID</label>
+                                <input class="form-input filled" value="5001034800089" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input class="form-input filled" value="Janson" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Surname</label>
+                                <input class="form-input filled" value="Rao" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Passport</label>
+                                <input class="form-input" placeholder="Passport number" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Gender</label>
+                                <select class="form-select"><option>Female</option><option>Male</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Marital Status</label>
+                                <select class="form-select"><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Date of Birth</label>
+                                <input class="form-input filled" value="03/01/1950" />
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">Occupation <span class="required">*</span></label>
+                                <input class="form-input filled" value="0004 — Accounting Clerk" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Contact Information</span></div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input class="form-input filled" value="janson@gail.com" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Home Mobile</label>
+                                <input class="form-input filled" value="0826545454" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Home Phone</label>
+                                <input class="form-input filled" value="082-6545322" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Work Mobile</label>
+                                <input class="form-input" placeholder="Work mobile" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Work Phone</label>
+                                <input class="form-input" placeholder="Work phone" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">Address</span>
+                        <label class="toggle-label"><input type="checkbox" checked /> Work same as Home</label>
+                    </div>
+                    <div class="card-body">
+                        <div class="maps-placeholder">
+                            <span class="maps-icon">📍</span>
+                            <span style="font-weight:600; color:var(--text-primary);">Pin location on Google Maps</span>
+                            <span style="font-size:12px; color:var(--text-secondary);">Drop a pin to auto-fill address fields below</span>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Street No.</label>
+                                <input class="form-input filled" value="23" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Street Name <span class="required">*</span></label>
+                                <input class="form-input filled" value="DINOKENG STREET" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Suburb <span class="required">*</span></label>
+                                <input class="form-input filled" value="MORETELE VIEW" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Municipality <span class="required">*</span></label>
+                                <input class="form-input filled" value="CITY OF TSHWANE" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Province <span class="required">*</span></label>
+                                <input class="form-input filled" value="GAUTENG" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Postal Code</label>
+                                <input class="form-input filled" value="0158" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Communication Preference</span></div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Preferred Address</label>
+                                <select class="form-select"><option>Home</option><option>Work</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Communication Mode <span class="required">*</span></label>
+                                <input class="form-input filled" value="002 — EMAIL" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Language <span class="required">*</span></label>
+                                <input class="form-input filled" value="001 — English" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-nav-footer">
+                    <button class="btn btn-secondary" onclick="showStep(1)">← Back</button>
+                    <div style="font-size:12px; color:var(--text-secondary);">Step 2 of 5</div>
+                    <button class="btn btn-primary" onclick="showStep(3)">Next: Quote Setup →</button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 3: Quote Setup ===== -->
+            <div class="step-page" id="step-3">
+                <div class="step-page-header">
+                    <div class="step-page-header-row">
+                        <div>
+                            <div class="step-page-title">Quote Setup</div>
+                            <div class="step-page-desc">Configure quotation dates, frequency and product sections</div>
+                        </div>
+                        <span class="status-badge badge-incomplete">● Quotation / Incomplete</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Quotation Details</span></div>
+                    <div class="card-body">
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Quotation No.</label>
+                                <input class="form-input filled" value="QP00926441" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Iteration No.</label>
+                                <input class="form-input filled" value="0" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Validity Period (Days)</label>
+                                <input class="form-input filled" value="30" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Quote Received Date</label>
+                                <input class="form-input filled" value="18/05/2026 14:24" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Policy Start Date</label>
+                                <input class="form-input filled" value="18/05/2026 14:24" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Review Date</label>
+                                <input class="form-input filled" value="31/05/2027 23:59" />
+                            </div>
+                        </div>
+                        <div class="form-row three">
+                            <div class="form-group">
+                                <label class="form-label">Frequency Method <span class="required">*</span></label>
+                                <select class="form-select"><option>01 — Monthly</option><option>02 — Annual</option></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">No. of Frequency</label>
+                                <input class="form-input filled" value="12" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Collection Day <span class="required">*</span></label>
+                                <input class="form-input filled" value="01" />
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">MerTrix Policy No.</label>
+                                <input class="form-input" placeholder="Enter if applicable" />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Org Incep Date</label>
+                                <input class="form-input filled" value="18/05/2026 14:24" />
+                            </div>
+                        </div>
+                        <hr class="section-divider">
+                        <div style="display:flex; flex-wrap:wrap; gap:20px;">
+                            <label class="toggle-label"><input type="checkbox" /> Rewarder YN</label>
+                            <label class="toggle-label"><input type="checkbox" /> Quote Accepted by Client</label>
+                            <label class="toggle-label"><input type="checkbox" /> Previous Insurance</label>
+                            <label class="toggle-label"><input type="checkbox" checked /> Read Full Scripting</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Product Sections</span></div>
+                    <div class="card-body" style="padding:0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Sr. No</th>
+                                    <th>Section Code</th>
+                                    <th>Description</th>
+                                    <th>No. of Risks Owned</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="selected">
+                                    <td>1</td><td>1021</td>
+                                    <td><span style="color:var(--brand-green); font-weight:500; cursor:pointer;">Personal Motor</span></td>
+                                    <td><input style="width:60px;border:1.5px solid var(--border-grey);border-radius:6px;padding:5px 8px;font-size:13px;font-family:'Inter',sans-serif;" value="1" /></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td><td>3021</td>
+                                    <td><span style="color:var(--brand-green); font-weight:500; cursor:pointer;">Personal Building</span></td>
+                                    <td><input style="width:60px;border:1.5px solid var(--border-grey);border-radius:6px;padding:5px 8px;font-size:13px;font-family:'Inter',sans-serif;" /></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="step-nav-footer">
+                    <button class="btn btn-secondary" onclick="showStep(2)">← Back</button>
+                    <div style="font-size:12px; color:var(--text-secondary);">Step 3 of 5</div>
+                    <button class="btn btn-primary" onclick="showStep(4)">Next: Risk Details →</button>
+                </div>
+            </div>
+
+            <!-- ===== STEP 4: Risk Details ===== -->
+            <div class="step-page" id="step-4">
+
+                <!-- 4a: Vehicle Details -->
+                <div id="substep-vehicle">
+                    <div class="step-page-header">
+                        <div class="step-page-title">Vehicle Details</div>
+                        <div class="step-page-desc">Vehicle identification, specifications and overnight storage address</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Vehicle Information</span></div>
+                        <div class="card-body">
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Reg No.</label>
+                                    <input class="form-input filled" value="TBA" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Veh. Type <span class="required">*</span></label>
+                                    <input class="form-input filled" value="A — Passenger Vehicle" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Vehicle Code <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Brand New" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Make <span class="required">*</span></label>
+                                    <input class="form-input filled" value="1626 — AUDI" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Model <span class="required">*</span></label>
+                                    <input class="form-input filled" value="A3 SPORTBACK 35 TFSI TIP" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">MM Code <span class="required">*</span></label>
+                                    <input class="form-input filled" value="04031150" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Reg. Year</label>
+                                    <input class="form-input filled" value="2021" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Manf. Year</label>
+                                    <input class="form-input filled" value="2021" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Engine No.</label>
+                                    <input class="form-input" placeholder="Engine number" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Vehicle Modification <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — None" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Usage <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Private" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Possession <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Yes" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Current Cover <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Not Covered" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Vehicle Value <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Retail" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Vehicle Colour <span class="required">*</span></label>
+                                    <input class="form-input filled" value="020 — White" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">VIN No.</label>
+                                    <input class="form-input" placeholder="VIN number" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Sum Insured</label>
+                                    <input class="form-input" value="431,700.00" style="font-weight:700; color:#16a05e; background:#f0fff8; border-color:var(--brand-green);" />
+                                </div>
+                            </div>
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Registered Owner</label>
+                                    <input class="form-input" placeholder="Registered owner name" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Night Time Address</span>
+                            <label class="toggle-label"><input type="checkbox" checked /> Default Address</label>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Stored <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Locked Garage" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Night Time Area Type <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Airport/Airfield" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Suburb <span class="required">*</span></label>
+                                    <input class="form-input filled" value="MORETELE VIEW" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Street Name <span class="required">*</span></label>
+                                    <input class="form-input filled" value="DINOKENG STREET" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Municipality <span class="required">*</span></label>
+                                    <input class="form-input filled" value="CITY OF TSHWANE" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Province <span class="required">*</span></label>
+                                    <input class="form-input filled" value="GAUTENG" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Day Time Address</span>
+                            <label class="toggle-label"><input type="checkbox" checked /> Same as Night Time</label>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-alert">ℹ️ Day time address is set to same as night time address.</div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-footer">
+                        <button class="btn btn-secondary" onclick="showStep(3)">← Back</button>
+                        <div style="font-size:12px; color:var(--text-secondary);">Step 4 of 5 — Vehicle</div>
+                        <button class="btn btn-primary" onclick="showSubStep('driver')">Next: Driver Details →</button>
+                    </div>
+                </div>
+
+                <!-- 4b: Driver Details -->
+                <div id="substep-driver" style="display:none;">
+                    <div class="step-page-header">
+                        <div class="step-page-title">Driver Details</div>
+                        <div class="step-page-desc">Regular driver's personal information and licence details</div>
+                    </div>
+
+                    <div class="tab-bar" style="margin-bottom:20px;">
+                        <div class="tab-item active">Driver Details</div>
+                        <div class="tab-item">Pre-Inspection</div>
+                        <div class="tab-item">Security Device</div>
+                        <div class="tab-item">Motor Inspection</div>
+                        <div class="tab-item">Finance Details</div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title">Driver Personal Details</span>
+                            <label class="toggle-label"><input type="checkbox" checked /> Regular Driver is the Insured</label>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Driver Type <span class="required">*</span></label>
+                                    <input class="form-input filled" value="01 — Regular Driver" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">ID Type <span class="required">*</span></label>
+                                    <input class="form-input filled" value="01 — RSA ID" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">RSA / Passport ID</label>
+                                    <input class="form-input filled" value="5001034800089" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Title <span class="required">*</span></label>
+                                    <input class="form-input filled" value="003 — Ms" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">First Name</label>
+                                    <input class="form-input filled" value="Janson" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Surname</label>
+                                    <input class="form-input filled" value="Rao" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Gender <span class="required">*</span></label>
+                                    <select class="form-select"><option>Female</option><option>Male</option></select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Marital Status <span class="required">*</span></label>
+                                    <input class="form-input filled" value="2 — Single" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input class="form-input filled" value="03/01/1950" />
+                                </div>
+                            </div>
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Occupation <span class="required">*</span></label>
+                                    <input class="form-input filled" value="0004 — Accounting Clerk" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Relation with Insured <span class="required">*</span></label>
+                                    <input class="form-input filled" value="001 — Self" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Cell No.</label>
+                                    <input class="form-input filled" value="0826545454" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Licence Details</span></div>
+                        <div class="card-body">
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Licence Type <span class="required">*</span></label>
+                                    <input class="form-input filled" value="05 — C1 (Heavy Motor 3.5T–16T)" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Age at Issue</label>
+                                    <input class="form-input filled" value="21" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Date of Issue</label>
+                                    <input class="form-input filled" value="03/01/1971" />
+                                </div>
+                            </div>
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Licence Limitations <span class="required">*</span></label>
+                                    <input class="form-input filled" value="004 — Artificial Limb" />
+                                </div>
+                            </div>
+                            <hr class="section-divider">
+                            <div style="display:flex; gap:24px;">
+                                <label class="toggle-label"><input type="checkbox" /> Advanced Driving Course</label>
+                                <label class="toggle-label"><input type="checkbox" /> Driving Convictions?</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-footer">
+                        <button class="btn btn-secondary" onclick="showSubStep('vehicle')">← Back</button>
+                        <div style="font-size:12px; color:var(--text-secondary);">Step 4 of 5 — Driver</div>
+                        <button class="btn btn-primary" onclick="showSubStep('cover')">Next: Risk Cover →</button>
+                    </div>
+                </div>
+
+                <!-- 4c: Cover -->
+                <div id="substep-cover" style="display:none;">
+                    <div class="step-page-header">
+                        <div class="step-page-title">Risk Cover</div>
+                        <div class="step-page-desc">Coverage items and sum insured values for Personal Motor</div>
+                    </div>
+
+                    <div class="card" style="margin-bottom:16px;">
+                        <div class="card-body" style="padding:0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>#</th><th>Cover Code</th><th>Cover Description</th><th>Sum Insured</th><th>Cover Type</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="selected"><td>1</td><td>102101</td><td>Comprehensive</td><td style="font-weight:600;">431,700.00</td><td><span class="tag tag-blue">Basic Cover</span></td></tr>
+                                    <tr><td>2</td><td>102111</td><td>Liability To Other Parties</td><td>5,000,000.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>3</td><td>102112</td><td>Own Damage - Natural Causes</td><td>431,700.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>4</td><td>102113</td><td>Emergency Repairs</td><td>10,000.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>5</td><td>102115</td><td>Emergency Accommodation</td><td>5,000.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>6</td><td>102117</td><td>Loss or Damage to Borrowed</td><td>431,700.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>7</td><td>102119</td><td>Disabled Modification</td><td>50,000.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>8</td><td>102122</td><td>New For Old (First Year)</td><td>431,700.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>9</td><td>102123</td><td>Delivery After Repair</td><td>10,000.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                    <tr><td>10</td><td>102124</td><td>Pests And Vermin</td><td>431,700.00</td><td><span class="tag tag-green">Non-Removable</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Car Hire Details</span></div>
+                        <div class="card-body">
+                            <div class="form-row three">
+                                <div class="form-group">
+                                    <label class="form-label">Car Hire Group <span class="required">*</span></label>
+                                    <input class="form-input" placeholder="Enter group" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Car Hire Term <span class="required">*</span></label>
+                                    <input class="form-input" placeholder="Enter term" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Distance Limit <span class="required">*</span></label>
+                                    <input class="form-input" placeholder="Enter limit" />
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Odometer Reading</label>
+                                    <input class="form-input" placeholder="Reading" />
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Odometer Pic Received <span class="required">*</span></label>
+                                    <input class="form-input" placeholder="Confirm receipt" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-footer">
+                        <button class="btn btn-secondary" onclick="showSubStep('driver')">← Back</button>
+                        <div style="font-size:12px; color:var(--text-secondary);">Step 4 of 5 — Cover</div>
+                        <button class="btn btn-primary" onclick="showSubStep('smi')">Next: SMI →</button>
+                    </div>
+                </div>
+
+                <!-- 4d: SMI -->
+                <div id="substep-smi" style="display:none;">
+                    <div class="step-page-header">
+                        <div class="step-page-title">Risk SMI</div>
+                        <div class="step-page-desc">Specified Movable Items and insured values</div>
+                    </div>
+
+                    <div class="card" style="margin-bottom:16px;">
+                        <div class="card-body" style="padding:0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>#</th><th>SMI Code</th><th>Description</th><th>Sum Insured</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="selected"><td>1</td><td>S300</td><td>BUILDING</td><td>0.00</td></tr>
+                                    <tr><td>2</td><td>S302</td><td>WATER HEATING SYSTEM</td><td style="font-weight:600;">10,000.00</td></tr>
+                                    <tr><td colspan="4" style="text-align:center; color:var(--text-secondary); font-size:12px; padding:12px;">+ Add new SMI item</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Original Sum Insured</label>
+                                    <input class="form-input" placeholder="Enter original sum insured" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-footer">
+                        <button class="btn btn-secondary" onclick="showSubStep('cover')">← Back</button>
+                        <div style="font-size:12px; color:var(--text-secondary);">Step 4 of 5 — SMI</div>
+                        <button class="btn btn-primary" onclick="showSubStep('excess')">Next: Excess →</button>
+                    </div>
+                </div>
+
+                <!-- 4e: Excess -->
+                <div id="substep-excess" style="display:none;">
+                    <div class="step-page-header">
+                        <div class="step-page-title">Excess</div>
+                        <div class="step-page-desc">MORETELE VIEW · Street 23 · DINOKENG STREET</div>
+                    </div>
+
+                    <div class="card" style="margin-bottom:16px;">
+                        <div class="card-body" style="padding:0;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr><th>Excess Code</th><th>Description</th><th>Excess Type</th><th>Percentage</th><th>Value</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="selected">
+                                        <td>1003-E</td>
+                                        <td>Standard Excess - Risk</td>
+                                        <td>% Of Claim with min</td>
+                                        <td>0</td>
+                                        <td style="font-weight:700; color:#16a05e;">R 1,500.00</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-row single">
+                                <div class="form-group">
+                                    <label class="form-label">Original Excess Value</label>
+                                    <input class="form-input" placeholder="Enter original excess value" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-card" style="background:var(--brand-dark-5); border:1px solid var(--brand-dark-15);">
+                        <div class="summary-row total">
+                            <span class="summary-label">Total Excess</span>
+                            <span class="summary-value green">R 1,500.00</span>
+                        </div>
+                    </div>
+
+                    <div class="step-nav-footer">
+                        <button class="btn btn-secondary" onclick="showSubStep('smi')">← Back</button>
+                        <div style="font-size:12px; color:var(--text-secondary);">Step 4 of 5 — Excess</div>
+                        <button class="btn btn-primary" onclick="showStep(5)">Next: Review & Submit →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== STEP 5: Review & Submit ===== -->
+            <div class="step-page" id="step-5">
+                <div class="step-page-header">
+                    <div class="step-page-header-row">
+                        <div>
+                            <div class="step-page-title">Review & Submit</div>
+                            <div class="step-page-desc">Premium summary and policy conversion</div>
+                        </div>
+                        <span class="status-badge badge-approved">● Quotation / Approved</span>
+                    </div>
+                </div>
+
+                <!-- Quote summary row -->
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-bottom:20px;">
+                    <div class="summary-card" style="margin-bottom:0; text-align:center;">
+                        <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px;">Client</div>
+                        <div style="font-size:13px; font-weight:600;">Ms. Janson J Rao</div>
+                    </div>
+                    <div class="summary-card" style="margin-bottom:0; text-align:center;">
+                        <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px;">Vehicle</div>
+                        <div style="font-size:13px; font-weight:600;">AUDI A3 Sportback</div>
+                    </div>
+                    <div class="summary-card" style="margin-bottom:0; text-align:center;">
+                        <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px;">Sum Insured</div>
+                        <div style="font-size:13px; font-weight:700; color:#16a05e;">R 431,700</div>
+                    </div>
+                    <div class="summary-card" style="margin-bottom:0; text-align:center;">
+                        <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:6px;">Monthly Premium</div>
+                        <div style="font-size:13px; font-weight:700; color:#16a05e;">R 4,157.35</div>
+                    </div>
+                </div>
+
+                <!-- Next Collections Table -->
+                <div class="card" style="margin-bottom:16px;">
+                    <div class="card-header"><span class="card-title">Next Collections</span></div>
+                    <div class="card-body" style="padding:0;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction No.</th>
+                                    <th>Collection Date</th>
+                                    <th>Premium Type</th>
+                                    <th>Quoted Premium</th>
+                                    <th>Fees</th>
+                                    <th>Collection Amount</th>
+                                    <th>Commission</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="background:#fff8e1;">
+                                    <td>QP00926441</td>
+                                    <td>18/05/2026</td>
+                                    <td><span class="tag tag-orange">Pro-Rata</span></td>
+                                    <td>1,904.42</td>
+                                    <td>0.00</td>
+                                    <td style="font-weight:700;">R 1,904.42</td>
+                                    <td>256.99</td>
+                                </tr>
+                                <tr>
+                                    <td>QP00926441</td>
+                                    <td>01/06/2026</td>
+                                    <td><span class="tag tag-blue">Full Premium</span></td>
+                                    <td>4,137.35</td>
+                                    <td>20.00</td>
+                                    <td style="font-weight:700;">R 4,157.35</td>
+                                    <td>578.30</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Collection Details -->
+                <div class="card" style="margin-bottom:16px;">
+                    <div class="card-header"><span class="card-title">Collection Details — Pro-Rata Period</span></div>
+                    <div class="card-body">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                            <div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Period</span>
+                                    <span class="summary-value">18/05/2026 → 31/05/2026</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">No. of Days</span>
+                                    <span class="summary-value">14 days</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Original Premium</span>
+                                    <span class="summary-value">R 0.00</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Quoted Premium</span>
+                                    <span class="summary-value">R 1,904.42</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span class="summary-label">Fees</span>
+                                    <span class="summary-value">R 0.00</span>
+                                </div>
+                                <div class="summary-row total">
+                                    <span class="summary-label">Collection Amount</span>
+                                    <span class="summary-value green">R 1,904.42</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-alert">
+                    ⚠️ <div><strong>Pro-rata collection is required.</strong> If the pro-rata amount is not collected, the policy will be automatically cancelled as per underwriting rules.</div>
+                </div>
+
+                <!-- Convert CTA -->
+                <div class="convert-cta">
+                    <div>
+                        <div class="convert-cta-text">Ready to convert to policy?</div>
+                        <div class="convert-cta-sub">This will generate a policy number and confirm the pro-rata collection schedule</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="showSuccess()" style="padding:12px 28px; font-size:14px;">Convert to Policy →</button>
+                </div>
+
+                <div class="step-nav-footer" style="border-top:none; padding-top:8px;">
+                    <button class="btn btn-secondary" onclick="showSubStep('excess'); showStep(4);">← Back to Excess</button>
+                    <div></div>
+                </div>
+            </div>
+
+            <!-- ===== SUCCESS / POLICY CREATED ===== -->
+            <div class="step-page" id="step-success">
+                <div class="policy-success">
+                    <div class="policy-icon">✓</div>
+                    <div class="policy-label">Policy Successfully Created</div>
+                    <div class="policy-number">MT24440974</div>
+                    <div class="policy-meta">Reference: QP00926441 · Created 18/05/2026 14:52</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><span class="card-title">Policy Summary</span></div>
+                    <div class="card-body">
+                        <div class="summary-row">
+                            <span class="summary-label">Policy Holder</span>
+                            <span class="summary-value">Ms. Janson J Rao</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Product</span>
+                            <span class="summary-value">Personal Motor — AUDI A3 SPORTBACK 35 TFSI TIP</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Policy Period</span>
+                            <span class="summary-value">18/05/2026 → 31/05/2027</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Monthly Premium</span>
+                            <span class="summary-value green">R 4,157.35</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Pro-Rata Due</span>
+                            <span class="summary-value" style="color:var(--accent-orange); font-weight:600;">R 1,904.42 (18/05/2026)</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Excess</span>
+                            <span class="summary-value">R 1,500.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Broker</span>
+                            <span class="summary-value">LETSATSI RISK MANA — MODISE MASEKELA</span>
+                        </div>
+                        <div class="summary-row" style="border-bottom:none;">
+                            <span class="summary-label">Status</span>
+                            <span class="status-badge badge-converted">● Converted</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:12px; justify-content:center; margin-top:24px; flex-wrap:wrap;">
+                    <button class="btn btn-secondary" onclick="showScreen('screen-console')">← Back to Console</button>
+                    <button class="btn btn-primary">📄 View Policy</button>
+                    <button class="btn btn-secondary">📧 Send to Client</button>
+                    <button class="btn btn-secondary">🖨 Print Summary</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</div><!-- page-wrapper -->
+
+<script>
+    // ===== SCREEN NAVIGATION =====
+    function showScreen(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if (id === 'screen-stepper') {
+            showStep(1);
+        }
+    }
+
+    // ===== STEP NAVIGATION =====
+    let currentStep = 1;
+
+    function showStep(n) {
+        currentStep = n;
+        // Hide all step pages
+        document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
+
+        if (n === 'success') {
+            document.getElementById('step-success').classList.add('active');
+        } else {
+            document.getElementById('step-' + n).classList.add('active');
+        }
+
+        // Update sidebar steps
+        for (let i = 1; i <= 5; i++) {
+            const navStep = document.getElementById('nav-step-' + i);
+            const dot = document.getElementById('dot-' + i);
+            const line = document.getElementById('line-' + i);
+
+            navStep.classList.remove('active', 'done');
+
+            if (i < n) {
+                navStep.classList.add('done');
+                dot.innerHTML = '✓';
+                if (line) line.classList.add('done');
+            } else if (i === n) {
+                navStep.classList.add('active');
+                dot.innerHTML = i;
+                if (line) line.classList.remove('done');
+            } else {
+                dot.innerHTML = i;
+                if (line) line.classList.remove('done');
+            }
+        }
+
+        // Show vehicle substep by default when entering step 4
+        if (n === 4) showSubStep('vehicle');
+
+        document.getElementById('stepper-content').scrollTop = 0;
+    }
+
+    // ===== SUB-STEP NAVIGATION =====
+    function showSubStep(sub) {
+        const subs = ['vehicle', 'driver', 'cover', 'smi', 'excess'];
+        subs.forEach(s => {
+            const el = document.getElementById('substep-' + s);
+            if (el) el.style.display = (s === sub) ? 'block' : 'none';
+            const navEl = document.getElementById('sub-' + s);
+            if (navEl) navEl.classList.toggle('active', s === sub);
+        });
+        document.getElementById('stepper-content').scrollTop = 0;
+    }
+
+    // ===== MODAL =====
+    function openModal() {
+        document.getElementById('modal-prev-insurance').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-prev-insurance').classList.remove('active');
+    }
+
+    function proceedToStepper() {
+        closeModal();
+        showScreen('screen-stepper');
+    }
+
+    // ===== SUCCESS =====
+    function showSuccess() {
+        document.querySelectorAll('.step-page').forEach(p => p.classList.remove('active'));
+        document.getElementById('step-success').classList.add('active');
+
+        // Mark all steps done
+        for (let i = 1; i <= 5; i++) {
+            const navStep = document.getElementById('nav-step-' + i);
+            const dot = document.getElementById('dot-' + i);
+            const line = document.getElementById('line-' + i);
+            navStep.classList.remove('active');
+            navStep.classList.add('done');
+            dot.innerHTML = '✓';
+            if (line) line.classList.add('done');
+        }
+    }
+
+    // Close modal on overlay click
+    document.getElementById('modal-prev-insurance').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+
+</body>
+</html>
